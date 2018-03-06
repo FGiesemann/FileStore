@@ -64,14 +64,24 @@ public abstract class Key {
    * @param str
    *          String representation of the key.
    * @return Key object from the string representation.
+   * @throws InvalidKey
+   *           If the string does not represent a valid key.
    */
-  public static Key fromString(String str) {
+  public static Key fromString(String str) throws InvalidKey {
     int sep = str.indexOf('-');
     if (sep == -1)
-      return null;
+      throw new InvalidKey("The given string does not represent a valid key: " + str);
     String hashStr = str.substring(0, sep);
-    int seqNo = Integer.parseInt(str.substring(sep + 1));
-    byte[] hash = HashUtils.stringToHash(hashStr);
+    if (hashStr.length() != 40)
+      throw new InvalidKey("The given string does not represent a valid key: " + str);
+    int seqNo;
+    byte[] hash;
+    try {
+      seqNo = Integer.parseInt(str.substring(sep + 1));
+      hash = HashUtils.stringToHash(hashStr);
+    } catch (NumberFormatException e) {
+      throw new InvalidKey("The given string does not represent a valid key", e);
+    }
     return new InternalKey(hash, seqNo);
   }
 
