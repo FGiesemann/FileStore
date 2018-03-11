@@ -46,12 +46,11 @@ public class FSFileStore implements FileStore {
   public Key addFile(Path file) throws IOException, DuplicateFile, NoSuchAlgorithmException {
     byte[] hash = HashUtils.hashFile(file);
     List<Key> possibleDups = checkForDuplicate(file, hash);
-    int seqNo = InternalKey.getMaxSeqNo(possibleDups);
-    return importFile(file, hash, seqNo);
+    Key internalKey = new Key(hash, possibleDups);
+    return importFile(file, internalKey);
   }
 
-  private InternalKey importFile(Path file, byte[] hash, int seqNo) throws IOException {
-    InternalKey key = new InternalKey(hash, seqNo + 1);
+  private Key importFile(Path file, Key key) throws IOException {
     Path internalPath = getFilePath(key);
     Path fileDir = getFileDirectory(key.toString());
     if (!Files.exists(fileDir))
@@ -112,7 +111,7 @@ public class FSFileStore implements FileStore {
       String name = p.getFileName().toString();
       try {
         if (name.startsWith(hashStr))
-            keyList.add(InternalKey.fromString(name));
+            keyList.add(Key.fromString(name));
       } catch (InvalidKey e) {
         /* Invalid file in the FileStore file system. Should not happen. */
       }

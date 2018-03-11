@@ -10,6 +10,7 @@
 package filestore;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Keys are used by the FileStore to identify files.
@@ -19,16 +20,21 @@ import java.util.Arrays;
  * 
  * @author Florian Giesemann
  */
-public abstract class Key {
+public class Key {
 
   protected byte[] hash;
   protected int seqNo;
 
-  protected Key(byte[] hash, int seqNo) {
+  public Key(byte[] hash, int seqNo) {
     this.hash = Arrays.copyOf(hash, hash.length);
     this.seqNo = seqNo;
   }
-
+  
+  public Key(byte[] hash, List<Key> sameHashKeys) {
+    this.hash = Arrays.copyOf(hash, hash.length);
+    this.seqNo = getMaxSeqNo(sameHashKeys) + 1;
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -52,6 +58,15 @@ public abstract class Key {
     if (seqNo != other.seqNo)
       return false;
     return true;
+  }
+  
+  private static int getMaxSeqNo(List<Key> keys) {
+    int seqNo = 0;
+    for (Key k : keys) {
+      if (k.seqNo > seqNo)
+        seqNo = k.seqNo;
+    }
+    return seqNo;
   }
 
   /**
@@ -82,7 +97,7 @@ public abstract class Key {
     } catch (NumberFormatException e) {
       throw new InvalidKey("The given string does not represent a valid key", e);
     }
-    return new InternalKey(hash, seqNo);
+    return new Key(hash, seqNo);
   }
 
   @Override
