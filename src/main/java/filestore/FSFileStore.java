@@ -24,8 +24,9 @@ public class FSFileStore implements FileStore {
   private static final int FOLDER_NAME_LENGTH = 2;
 
   private Path basePath;
+  private int folderLevels;
 
-  public FSFileStore(Path basePath) throws IOException, FileStoreException {
+  public FSFileStore(Path basePath, int folderLevels) throws IOException, FileStoreException {
     this.basePath = basePath;
     if (Files.exists(this.basePath)) {
       if (Files.isDirectory(this.basePath)) {
@@ -35,7 +36,12 @@ public class FSFileStore implements FileStore {
       }
     } else {
       Files.createDirectories(this.basePath);
-    }
+    }    
+    this.folderLevels = folderLevels;
+  }
+  
+  public FSFileStore(Path basePath) throws IOException, FileStoreException {
+    this(basePath, 1);
   }
 
   /*
@@ -54,7 +60,7 @@ public class FSFileStore implements FileStore {
     Path internalPath = getFilePath(key);
     Path fileDir = getFileDirectory(key.toString());
     if (!Files.exists(fileDir))
-      Files.createDirectory(fileDir);
+      Files.createDirectories(fileDir);
     Files.copy(file, internalPath);
     return key;
   }
@@ -152,7 +158,11 @@ public class FSFileStore implements FileStore {
   }
 
   Path getFileDirectory(String dir) {
-    return basePath.resolve(dir.substring(0, FOLDER_NAME_LENGTH));
+    Path p = basePath.resolve(dir.substring(0, FOLDER_NAME_LENGTH));
+    for (int i = 1; i < folderLevels; ++i) {
+      p = p.resolve(dir.substring(i * FOLDER_NAME_LENGTH, (i + 1) * FOLDER_NAME_LENGTH));
+    }
+    return p;
   }
 
 }
