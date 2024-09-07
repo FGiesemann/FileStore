@@ -11,12 +11,12 @@ TEST_CASE("hash to string conversion", "[hash]") {
     hash_value<8> h1{std::byte{12}};
     str = to_hex_string(h1);
     REQUIRE(str.length() == 2);
-    REQUIRE(str == "0C"s);
+    REQUIRE(str == "0c"s);
 
     hash_value<16> h2{std::byte{214}, std::byte{167}};
     str = to_hex_string(h2);
     REQUIRE(str.length() == 4);
-    REQUIRE(str == "D6A7"s);
+    REQUIRE(str == "d6a7"s);
 
     hash_value<256> h3;
     str = to_hex_string(h3);
@@ -27,5 +27,5 @@ TEST_CASE("hash to string conversion", "[hash]") {
     std::transform(std::begin(bytes), std::end(bytes), std::begin(h3.data), [](int i) { return std::byte(i); });
     str = to_hex_string(h3);
     REQUIRE(str.length() == 64);
-    REQUIRE(str == "22ED89024118EB7B34FCA33E9C1A1B92AC241BDB4A3500FCFAB22E18000022AD"s);
+    REQUIRE(str == "22ed89024118eb7b34fca33e9c1a1b92ac241bdb4a3500fcfab22e18000022ad"s);
 }

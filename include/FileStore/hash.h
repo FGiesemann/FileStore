@@ -20,7 +20,7 @@ struct hash_value {
 };
 
 static inline std::string byte_to_hex(std::byte b) {
-    static constexpr auto hexchars = "0123456789ABCDEF";
+    static constexpr auto hexchars = "0123456789abcdef";
     std::string res{2, '0'};
     const auto value = std::to_integer<int>(b);
     res[0] = hexchars[value / 16];
@@ -36,7 +36,7 @@ std::string to_hex_string(const hash_value<num_bits> &hash) {
 }
 
 template<typename HashAlgo>
-hash_value<HashAlgo::hash_size> hash_file(const std::filesystem::path &file_path) {
+HashAlgo::hash_type hash_file(const std::filesystem::path &file_path) {
     static constexpr auto buffer_size = 65536U;
 
     HashAlgo algo{};

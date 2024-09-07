@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 add_library(FileStore
     src/filestore.cpp
+    src/sha256.cpp
 )
 
 target_include_directories(FileStore
@@ -27,6 +28,7 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(tests
     test/hash.cpp
+    test/sha256.cpp
 )
 
 target_link_libraries(tests Catch2::Catch2WithMain FileStore)
