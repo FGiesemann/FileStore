@@ -28,7 +28,7 @@ private:
     size_t bytes_stored;
     uint64_t bytes_processed;
 
-    void processBlock();
+    void process_block();
     void finalize();
 
     static word Ch(word x, word y, word z);

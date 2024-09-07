@@ -16,19 +16,19 @@ SHA256::SHA256() {
 }
 
 void SHA256::update(const char *data, size_t size) {
-    char *buffer = reinterpret_cast<char *>(&W[0]);
-    size_t dataOffset = 0;
+    char *buffer = reinterpret_cast<char *>(W);
+    size_t data_offset = 0;
 
     while (size > 0) {
         size_t free_space_in_buffer = buffer_size - bytes_stored;
         size_t bytes_to_copy = std::min(size, free_space_in_buffer);
-        std::memcpy(buffer + bytes_stored, data + dataOffset, bytes_to_copy);
+        std::memcpy(buffer + bytes_stored, data + data_offset, bytes_to_copy);
         bytes_stored += bytes_to_copy;
         size -= bytes_to_copy;
-        dataOffset += bytes_to_copy;
+        data_offset += bytes_to_copy;
 
         if (bytes_stored == buffer_size) {
-            processBlock();
+            process_block();
             bytes_processed += buffer_size;
             bytes_stored = 0;
         }
@@ -62,12 +62,12 @@ SHA256::hash_type SHA256::hash() {
     hash_type hash_value;
     for (int i = 0; i < 8; ++i) {
         word w = byte_swap(h[i]);
-        std::memcpy(hash_value.data + 4 * i, &w, sizeof(w));
+        std::memcpy(hash_value.data + sizeof(w) * i, &w, sizeof(w));
     }
     return hash_value;
 }
 
-void SHA256::processBlock() {
+void SHA256::process_block() {
     for (int i = 0; i < 16; ++i)
         W[i] = byte_swap(W[i]); // byte to number type conversion (byte order/endianess)
 
@@ -95,23 +95,23 @@ void SHA256::processBlock() {
 }
 
 void SHA256::finalize() {
-    uint64_t messageBitLength = (bytes_processed + bytes_stored) * 8;
+    uint64_t message_bit_length = (bytes_processed + bytes_stored) * 8;
 
     char *buffer = reinterpret_cast<char *>(&W[0]);
     buffer[bytes_stored] = (uint8_t)0x80;
     ++bytes_stored;
 
-    size_t freeSpaceInBuffer = buffer_size - bytes_stored;
-    std::memset(buffer + bytes_stored, 0, freeSpaceInBuffer);
+    size_t free_space_in_buffer = buffer_size - bytes_stored;
+    std::memset(buffer + bytes_stored, 0, free_space_in_buffer);
 
-    if (freeSpaceInBuffer < 8) {
-        processBlock();
+    if (free_space_in_buffer < 8) {
+        process_block();
         memset(buffer, 0, buffer_size);
     }
 
-    uint64_t tmp = byte_swap(messageBitLength); // number type to bytes conversion (byte order/endianess)
+    uint64_t tmp = byte_swap(message_bit_length); // number type to bytes conversion (byte order/endianess)
     std::memcpy(buffer + buffer_size - 8, &tmp, 8);
-    processBlock();
+    process_block();
 }
 
 SHA256::word SHA256::Ch(word x, word y, word z) {

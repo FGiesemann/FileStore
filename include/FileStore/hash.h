@@ -19,22 +19,6 @@ struct hash_value {
     std::byte data[bytelength] = {};
 };
 
-static inline std::string byte_to_hex(std::byte b) {
-    static constexpr auto hexchars = "0123456789abcdef";
-    std::string res{2, '0'};
-    const auto value = std::to_integer<int>(b);
-    res[0] = hexchars[value / 16];
-    res[1] = hexchars[value % 16];
-    return res;
-}
-
-template<size_t num_bits>
-std::string to_hex_string(const hash_value<num_bits> &hash) {
-    std::stringstream result;
-    std::transform(std::begin(hash.data), std::end(hash.data), std::ostream_iterator<std::string>(result), byte_to_hex);
-    return result.str();
-}
-
 template<typename HashAlgo>
 HashAlgo::hash_type hash_file(const std::filesystem::path &file_path) {
     static constexpr auto buffer_size = 65536U;
@@ -51,6 +35,22 @@ HashAlgo::hash_type hash_file(const std::filesystem::path &file_path) {
     }
 
     return algo.hash();
+}
+
+static inline std::string byte_to_hex(std::byte b) {
+    static constexpr auto hexchars = "0123456789abcdef";
+    std::string res{2, '0'};
+    const auto value = std::to_integer<int>(b);
+    res[0] = hexchars[value / 16];
+    res[1] = hexchars[value % 16];
+    return res;
+}
+
+template<size_t num_bits>
+std::string to_hex_string(const hash_value<num_bits> &hash) {
+    std::stringstream result;
+    std::transform(std::begin(hash.data), std::end(hash.data), std::ostream_iterator<std::string>(result), byte_to_hex);
+    return result.str();
 }
 
 } // namespace filestore
