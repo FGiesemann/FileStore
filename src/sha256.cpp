@@ -1,4 +1,5 @@
 #include "FileStore/sha256.h"
+#include <cassert>
 
 namespace filestore {
 
@@ -20,18 +21,14 @@ void SHA256::update(const char *data, size_t size) {
     size_t data_offset = 0;
 
     while (size > 0) {
-        size_t free_space_in_buffer = buffer_size - bytes_stored;
-        size_t bytes_to_copy = std::min(size, free_space_in_buffer);
+        size_t bytes_to_copy = std::min(size, free_buffer_bytes());
         std::memcpy(buffer + bytes_stored, data + data_offset, bytes_to_copy);
         bytes_stored += bytes_to_copy;
         size -= bytes_to_copy;
         data_offset += bytes_to_copy;
 
-        if (bytes_stored == buffer_size) {
+        if (buffer_full())
             process_block();
-            bytes_processed += buffer_size;
-            bytes_stored = 0;
-        }
     }
 }
 
@@ -92,25 +89,33 @@ void SHA256::process_block() {
 
     for (int i = 0; i < 8; ++i)
         h[i] += w_tmp[i];
+
+    bytes_processed += buffer_size;
+    bytes_stored = 0;
 }
 
 void SHA256::finalize() {
     uint64_t message_bit_length = (bytes_processed + bytes_stored) * 8;
 
-    char *buffer = reinterpret_cast<char *>(&W[0]);
+    char *buffer = reinterpret_cast<char *>(W);
+
+    // append single 1-bit to the data
+    // cannot be full, because then it would have already been processed and emptied again
     buffer[bytes_stored] = (uint8_t)0x80;
     ++bytes_stored;
 
-    size_t free_space_in_buffer = buffer_size - bytes_stored;
-    std::memset(buffer + bytes_stored, 0, free_space_in_buffer);
+    // fill remainder of the block with 0
+    std::memset(buffer + bytes_stored, 0, free_buffer_bytes());
 
-    if (free_space_in_buffer < 8) {
+    if (free_buffer_bytes() < 8) { // not enough room to store message length
+        // start a new block
         process_block();
         memset(buffer, 0, buffer_size);
     }
 
-    uint64_t tmp = byte_swap(message_bit_length); // number type to bytes conversion (byte order/endianess)
-    std::memcpy(buffer + buffer_size - 8, &tmp, 8);
+    // put message length at end of block
+    uint64_t L = byte_swap(message_bit_length); // number type to bytes conversion (byte order/endianess)
+    std::memcpy(buffer + buffer_size - sizeof(L), &L, sizeof(L));
     process_block();
 }
 

@@ -31,6 +31,9 @@ private:
     void process_block();
     void finalize();
 
+    size_t free_buffer_bytes() const { return buffer_size - bytes_stored; }
+    bool buffer_full() const { return bytes_stored == buffer_size; }
+
     static word Ch(word x, word y, word z);
     static word Maj(word x, word y, word z);
     static word Sigma0(word x);
