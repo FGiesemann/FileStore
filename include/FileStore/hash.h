@@ -23,15 +23,20 @@ template<typename HashAlgo>
 HashAlgo::hash_type hash_file(const std::filesystem::path &file_path) {
     static constexpr auto buffer_size = 65536U;
 
+    std::ifstream input{file_path, std::ifstream::binary};
+    if (!input) {
+        throw std::runtime_error("Could not open file");
+    }
+
     HashAlgo algo{};
-    std::ifstream input{file_path};
 
     std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buffer_size);
     while (input) {
         input.read(buffer.get(), buffer_size);
-        if (input) {
+        if (!input.bad())
             algo.update(buffer.get(), input.gcount());
-        }
+        else
+            throw std::runtime_error("Error reading input file");
     }
 
     return algo.hash();

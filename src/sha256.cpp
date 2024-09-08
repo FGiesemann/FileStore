@@ -21,7 +21,7 @@ void SHA256::update(const char *data, size_t size) {
     size_t data_offset = 0;
 
     while (size > 0) {
-        size_t bytes_to_copy = std::min(size, free_buffer_bytes());
+        const auto bytes_to_copy = std::min(size, free_buffer_bytes());
         std::memcpy(buffer + bytes_stored, data + data_offset, bytes_to_copy);
         bytes_stored += bytes_to_copy;
         size -= bytes_to_copy;
