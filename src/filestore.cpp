@@ -18,7 +18,7 @@ fs::path FileStore::get_file_path(const Key &file_key) const {
     return root_path() / file_name.substr(0, 2) / file_name.substr(2);
 }
 
-Key FileStore::generate_file_key(const fs::path &file_path) {
+Key generate_file_key(const fs::path &file_path) {
     const auto hash = hash_file<SHA256>(file_path);
     return Key{hash, 0U};
 }
@@ -27,7 +27,7 @@ bool FileStore::key_exists(const Key &k) const {
     return fs::exists(get_file_path(k));
 }
 
-bool FileStore::is_duplicate_file(const fs::path &existing_file, const fs::path &candidate_file) {
+bool is_duplicate_file(const fs::path &existing_file, const fs::path &candidate_file) {
     constexpr std::streamsize BufferSize = 65536u;
 
     if (!files_have_same_size(existing_file, candidate_file))
@@ -60,13 +60,13 @@ bool FileStore::is_duplicate_file(const fs::path &existing_file, const fs::path 
     return true;
 }
 
-bool FileStore::files_have_same_size(const fs::path &path1, const fs::path &path2) {
+bool files_have_same_size(const fs::path &path1, const fs::path &path2) {
     auto size1 = fs::file_size(path1);
     auto size2 = fs::file_size(path2);
     return size1 == size2;
 }
 
-void FileStore::increment_key(Key &k) {
+void increment_key(Key &k) {
     if (k.distinguisher < std::numeric_limits<uint32_t>::max()) {
         ++k.distinguisher;
     }

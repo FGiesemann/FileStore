@@ -38,12 +38,13 @@ public:
 private:
     fs::path m_root_path;
 
-    static Key generate_file_key(const fs::path &file_path);
     bool key_exists(const Key &k) const;
-    static bool is_duplicate_file(const fs::path &existing_file, const fs::path &candidate_path);
-    static bool files_have_same_size(const fs::path &path1, const fs::path &path2);
-    static void increment_key(Key &k);
 };
+
+Key generate_file_key(const fs::path &file_path);
+bool is_duplicate_file(const fs::path &existing_file, const fs::path &candidate_path);
+bool files_have_same_size(const fs::path &path1, const fs::path &path2);
+void increment_key(Key &k);
 
 } // namespace filestore
 
