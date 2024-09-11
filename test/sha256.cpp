@@ -37,5 +37,7 @@ TEST_CASE("sha256 file hashes", "[hash]") {
     std::filesystem::path root{"../../test/data"};
     REQUIRE(hash_file(root / "hello.dat") == "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"s);
     REQUIRE(hash_file(root / "file1.dat") == "d5d845d8fd337e1635c929f7205c1bc93ce95bbdd44a23b17b2790c7532d12f1"s);
+    REQUIRE(hash_file(root / "file2.dat") == "d5d845d8fd337e1635c929f7205c1bc93ce95bbdd44a23b17b2790c7532d12f1"s);
     REQUIRE(hash_file(root / "file3.dat") == "0cc8d7e70144753c7f1f1ba72687434595934a9dfc0932401fa3285e37eb2b66"s);
+    REQUIRE(hash_file(root / "file4.dat") == "d42adb5929b01ea9d435a8d847c71c26a8f7fd8265cb956fdc3210b9cadb2829"s);
 }

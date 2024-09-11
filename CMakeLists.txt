@@ -28,6 +28,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 
 add_executable(tests
+    test/file.cpp
     test/hash.cpp
     test/sha256.cpp
 )
