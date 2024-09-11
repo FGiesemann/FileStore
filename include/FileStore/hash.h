@@ -7,6 +7,8 @@
 #include <sstream>
 #include <string>
 
+#include "FileStore/file.h"
+
 namespace filestore {
 
 template<size_t num_bits>
@@ -25,7 +27,7 @@ HashAlgo::hash_type hash_file(const std::filesystem::path &file_path) {
 
     std::ifstream input{file_path, std::ifstream::binary};
     if (!input) {
-        throw std::runtime_error("Could not open file");
+        throw FileError("Could not open file", file_path);
     }
 
     HashAlgo algo{};
@@ -36,7 +38,7 @@ HashAlgo::hash_type hash_file(const std::filesystem::path &file_path) {
         if (!input.bad())
             algo.update(buffer.get(), input.gcount());
         else
-            throw std::runtime_error("Error reading input file");
+            throw FileError("Error reading input file", file_path);
     }
 
     return algo.hash();
