@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 add_library(FileStore
+    src/file.cpp
     src/filestore.cpp
     src/sha256.cpp
 )

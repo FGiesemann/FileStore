@@ -16,15 +16,6 @@ struct Key {
 
 std::string to_string(const Key &k);
 
-class FileError : public std::runtime_error {
-public:
-    FileError(const std::string &msg, const fs::path &path) : std::runtime_error(msg), path{path} {}
-
-    const fs::path &filePath() const { return path; }
-private:
-    fs::path path;
-};
-
 class FileStore {
 public:
     using import_result = std::expected<Key, Key>;
@@ -42,8 +33,6 @@ private:
 };
 
 Key generate_file_key(const fs::path &file_path);
-bool is_duplicate_file(const fs::path &existing_file, const fs::path &candidate_path);
-bool files_have_same_size(const fs::path &path1, const fs::path &path2);
 void increment_key(Key &k);
 
 } // namespace filestore
