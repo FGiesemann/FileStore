@@ -91,3 +91,25 @@ TEST_CASE("FileStore file paths", "[filestore]") {
     REQUIRE(store2.get_file_path(k1) == fs2.path() / "a3" / "7b" / "2f" / "29ec7ef15a39b20015382bef6a45b28a3b2ffe1862ca4f92ef7a3f287200000000");
     REQUIRE(store2.get_file_path(k2) == fs2.path() / "a3" / "7b" / "2f" / "29ec7ef15a39b20015382bef6a45b28a3b2ffe1862ca4f92ef7a3f2872000018dd");
 }
+
+TEST_CASE("FileStore import test", "[filestore]") {
+    using namespace filestore;
+    namespace fs = std::filesystem;
+    fs::path root{"../../test/data"};
+
+    TempFS fs1;
+    FileStore store(fs1);
+    const auto k1 = store.import(root / "file1.dat");
+    REQUIRE(k1.has_value());
+    REQUIRE(to_string(k1.value()) == "d5d845d8fd337e1635c929f7205c1bc93ce95bbdd44a23b17b2790c7532d12f100000000");
+    REQUIRE(fs::exists(store.get_file_path(k1.value())));
+
+    const auto k2 = store.import(root / "file2.dat");
+    REQUIRE_FALSE(k2.has_value());
+    REQUIRE(k1.value() == k2.error());
+
+    const auto k3 = store.import(root / "file3.dat");
+    REQUIRE(k3.has_value());
+    REQUIRE(to_string(k3.value()) == "0cc8d7e70144753c7f1f1ba72687434595934a9dfc0932401fa3285e37eb2b6600000000");
+    REQUIRE(fs::exists(store.get_file_path(k3.value())));
+}

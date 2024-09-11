@@ -14,6 +14,10 @@ struct Key {
     uint32_t distinguisher;
 };
 
+inline bool operator==(const Key &k1, const Key &k2) {
+    return k1.distinguisher == k2.distinguisher && std::equal(std::begin(k1.hash.data), std::end(k1.hash.data), std::begin(k2.hash.data));
+}
+
 std::string to_string(const Key &k);
 
 class FileStore {

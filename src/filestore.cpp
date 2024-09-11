@@ -16,7 +16,9 @@ FileStore::import_result FileStore::import(const fs::path &file_path) {
             return std::unexpected(key);
         increment_key(key);
     }
-    // TODO: store the file!
+    const auto path = get_file_path(key);
+    fs::create_directories(path.parent_path());
+    fs::copy(file_path, path);
     return key;
 }
 
