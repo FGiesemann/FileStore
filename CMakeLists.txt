@@ -31,6 +31,7 @@ add_executable(tests
     test/file.cpp
     test/hash.cpp
     test/sha256.cpp
+    test/filestore.cpp
 )
 
 target_link_libraries(tests Catch2::Catch2WithMain FileStore)

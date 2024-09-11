@@ -20,7 +20,7 @@ class FileStore {
 public:
     using import_result = std::expected<Key, Key>;
 
-    FileStore(const fs::path &root_path) : m_root_path{root_path} {}
+    explicit FileStore(const fs::path &root_path, int folder_levels = 2);
 
     import_result import(const fs::path &file_path);
     fs::path get_file_path(const Key &file_key) const;
@@ -28,6 +28,7 @@ public:
     const fs::path &root_path() const { return m_root_path; }
 private:
     fs::path m_root_path;
+    int m_folder_levels{2};
 
     bool key_exists(const Key &k) const;
 };
