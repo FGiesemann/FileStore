@@ -1,3 +1,8 @@
+/* ******************************************************* *
+ * FileStore                                               *
+ * (c) Florian Giesemann 2024                              *
+ * ******************************************************* */
+
 #ifndef FILESTORE_HASH_H
 #define FILESTORE_HASH_H
 

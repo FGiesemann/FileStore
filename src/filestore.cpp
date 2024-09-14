@@ -1,3 +1,8 @@
+/* ******************************************************* *
+ * FileStore                                               *
+ * (c) Florian Giesemann 2024                              *
+ * ******************************************************* */
+
 #include "FileStore/filestore.h"
 #include "FileStore/file.h"
 #include "FileStore/hash.h"
