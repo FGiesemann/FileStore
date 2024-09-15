@@ -20,7 +20,9 @@ FileStore::import_result FileStore::import(const fs::path &file_path) {
     while (key_exists(key)) {
         if (files_are_equal(get_file_path(key), file_path))
             return std::unexpected(key);
-        increment_key(key);
+        if (!key.increment()) {
+            throw FileError("Key space exhausted", file_path);
+        }
     }
     const auto path = get_file_path(key);
     fs::create_directories(path.parent_path());
@@ -45,23 +47,6 @@ Key generate_file_key(const fs::path &file_path) {
 
 bool FileStore::key_exists(const Key &k) const {
     return fs::exists(get_file_path(k));
-}
-
-uint32_t extract_distinguisher(const Key &k) {
-    Key::distinguisher_type d;
-    std::memcpy(&d, k.data.data() + k.hash_size, k.distinguisher_size);
-    return d;
-}
-
-void update_distinguisher(Key &k, Key::distinguisher_type d) {
-    std::memcpy(k.data.data() + k.hash_size, &d, k.distinguisher_size);
-}
-
-void increment_key(Key &k) {
-    auto d = extract_distinguisher(k);
-    if (d < std::numeric_limits<Key::distinguisher_type>::max()) {
-        update_distinguisher(k, d + 1);
-    }
 }
 
 std::string to_string(const Key &k) {

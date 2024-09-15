@@ -22,6 +22,21 @@ struct Key {
     static constexpr auto bytelength = hash_size + distinguisher_size;
 
     std::array<std::byte, bytelength> data;
+
+    distinguisher_type distinguisher() const {
+        distinguisher_type d;
+        std::memcpy(&d, data.data() + hash_size, distinguisher_size);
+        return d;
+    }
+    void update_distiguisher(distinguisher_type d) { std::memcpy(data.data() + hash_size, &d, distinguisher_size); }
+    bool increment() {
+        auto d = distinguisher();
+        if (d < std::numeric_limits<distinguisher_type>::max()) {
+            update_distiguisher(d + 1);
+            return true;
+        }
+        return false;
+    }
 };
 
 inline bool operator==(const Key &k1, const Key &k2) {
@@ -48,9 +63,6 @@ private:
 };
 
 Key generate_file_key(const fs::path &file_path);
-uint32_t extract_distinguisher(const Key &k);
-void update_distinguisher(Key &k, uint32_t d);
-void increment_key(Key &k);
 
 } // namespace filestore
 

@@ -46,7 +46,7 @@ filestore::Key gen_key(const std::string &hash, int distinguisher) {
     for (int i = 0; i < key.data.size() - sizeof(uint32_t); ++i) {
         key.data[i] = static_cast<std::byte>(std::stoi(hash.substr(2 * i, 2), nullptr, 16));
     }
-    update_distinguisher(key, distinguisher);
+    key.update_distiguisher(distinguisher);
     return key;
 }
 
@@ -74,9 +74,9 @@ TEST_CASE("FileStore key increment", "[filestore]") {
     using namespace filestore;
 
     Key k1{};
-    REQUIRE(extract_distinguisher(k1) == 0);
-    increment_key(k1);
-    REQUIRE(extract_distinguisher(k1) == 1);
+    REQUIRE(k1.distinguisher() == 0);
+    k1.increment();
+    REQUIRE(k1.distinguisher() == 1);
 }
 
 TEST_CASE("FileStore file paths", "[filestore]") {
