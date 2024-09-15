@@ -5,6 +5,7 @@
 
 #include "FileStore/file.h"
 #include <fstream>
+#include <vector>
 
 namespace filestore {
 
@@ -28,17 +29,9 @@ bool files_are_equal(const fs::path &existing_file, const fs::path &candidate_fi
     if (!file2.is_open())
         throw FileError{"Could not open file", candidate_file};
 
-    std::unique_ptr<char[]> buffer1 = std::make_unique<char[]>(BufferSize);
-    std::unique_ptr<char[]> buffer2 = std::make_unique<char[]>(BufferSize);
-    file1.read(buffer1.get(), BufferSize);
-    file2.read(buffer2.get(), BufferSize);
-    while (file1 && file2) {
-        if (std::memcmp(buffer1.get(), buffer2.get(), file1.gcount()) != 0) {
-            return false;
-        }
-        file1.read(buffer1.get(), BufferSize);
-        file2.read(buffer2.get(), BufferSize);
-    }
+    if (!std::equal(std::istreambuf_iterator<char>(file1), std::istreambuf_iterator<char>(), std::istreambuf_iterator<char>(file2)))
+        return false;
+
     if (file1.bad())
         throw FileError{"Error reading input file", existing_file};
     if (file2.bad())
