@@ -7,6 +7,7 @@
 #define FILESTORE_FILESTORE_H
 
 #include "FileStore/sha256.h"
+#include <array>
 #include <expected>
 #include <filesystem>
 
@@ -15,12 +16,16 @@ namespace filestore {
 namespace fs = std::filesystem;
 
 struct Key {
-    SHA256::hash_type hash;
-    uint32_t distinguisher;
+    using distinguisher_type = std::uint32_t;
+    static constexpr auto hash_size = 32U;
+    static constexpr auto distinguisher_size = sizeof(distinguisher_type);
+    static constexpr auto bytelength = hash_size + distinguisher_size;
+
+    std::array<std::byte, bytelength> data;
 };
 
 inline bool operator==(const Key &k1, const Key &k2) {
-    return k1.distinguisher == k2.distinguisher && std::equal(std::begin(k1.hash.data), std::end(k1.hash.data), std::begin(k2.hash.data));
+    return k1.data == k2.data;
 }
 
 std::string to_string(const Key &k);
@@ -43,6 +48,8 @@ private:
 };
 
 Key generate_file_key(const fs::path &file_path);
+uint32_t extract_distinguisher(const Key &k);
+void update_distinguisher(Key &k, uint32_t d);
 void increment_key(Key &k);
 
 } // namespace filestore

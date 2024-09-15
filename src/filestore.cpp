@@ -4,6 +4,7 @@
  * ******************************************************* */
 
 #include "FileStore/filestore.h"
+#include "FileStore/bin_utils.h"
 #include "FileStore/file.h"
 #include "FileStore/hash.h"
 
@@ -37,24 +38,34 @@ fs::path FileStore::get_file_path(const Key &file_key) const {
 
 Key generate_file_key(const fs::path &file_path) {
     const auto hash = hash_file<SHA256>(file_path);
-    return Key{hash, 0U};
+    Key key{};
+    std::memcpy(key.data.data(), hash.data, hash.bytelength);
+    return key;
 }
 
 bool FileStore::key_exists(const Key &k) const {
     return fs::exists(get_file_path(k));
 }
 
+uint32_t extract_distinguisher(const Key &k) {
+    Key::distinguisher_type d;
+    std::memcpy(&d, k.data.data() + k.hash_size, k.distinguisher_size);
+    return d;
+}
+
+void update_distinguisher(Key &k, Key::distinguisher_type d) {
+    std::memcpy(k.data.data() + k.hash_size, &d, k.distinguisher_size);
+}
+
 void increment_key(Key &k) {
-    if (k.distinguisher < std::numeric_limits<uint32_t>::max()) {
-        ++k.distinguisher;
+    auto d = extract_distinguisher(k);
+    if (d < std::numeric_limits<Key::distinguisher_type>::max()) {
+        update_distinguisher(k, d + 1);
     }
 }
 
 std::string to_string(const Key &k) {
-    std::stringstream str;
-    str << to_hex_string(k.hash);
-    str << std::hex << std::setfill('0') << std::setw(8) << k.distinguisher;
-    return str.str();
+    return bytes_to_hex(std::begin(k.data), std::end(k.data));
 }
 
 } // namespace filestore
