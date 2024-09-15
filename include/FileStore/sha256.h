@@ -8,6 +8,9 @@
 
 #include "FileStore/hash.h"
 
+#include <array>
+#include <span>
+
 namespace filestore {
 
 class SHA256 {
@@ -18,7 +21,7 @@ public:
 
     SHA256();
 
-    void update(const char *data, size_t size);
+    void update(std::span<const char> data);
     hash_type hash();
 private:
     static constexpr size_t buffer_size = 64; // bytes = 512 bit
@@ -28,8 +31,8 @@ private:
                                    0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
                                    0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
-    word h[8];
-    word W[64];
+    std::array<word, 8> h;
+    std::array<word, 64> W;
     size_t bytes_stored;
     uint64_t bytes_processed;
 

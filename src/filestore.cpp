@@ -41,7 +41,7 @@ fs::path FileStore::get_file_path(const Key &file_key) const {
 Key generate_file_key(const fs::path &file_path) {
     const auto hash = hash_file<SHA256>(file_path);
     Key key{};
-    std::memcpy(key.data.data(), hash.data, hash.bytelength);
+    std::memcpy(key.data.data(), hash.data.data(), hash.bytelength);
     return key;
 }
 

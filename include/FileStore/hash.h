@@ -7,10 +7,13 @@
 #define FILESTORE_HASH_H
 
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <fstream>
+#include <span>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "FileStore/bin_utils.h"
 #include "FileStore/file.h"
@@ -24,7 +27,7 @@ struct hash_value {
     static constexpr auto bitlength = num_bits;
     static constexpr auto bytelength = num_bits / 8;
 
-    std::byte data[bytelength] = {};
+    std::array<std::byte, bytelength> data{};
 };
 
 template<typename HashAlgo>
@@ -38,11 +41,11 @@ HashAlgo::hash_type hash_file(const std::filesystem::path &file_path) {
 
     HashAlgo algo{};
 
-    std::unique_ptr<char[]> buffer = std::make_unique<char[]>(buffer_size);
+    std::vector<char> buffer(buffer_size);
     while (input) {
-        input.read(buffer.get(), buffer_size);
+        input.read(buffer.data(), buffer_size);
         if (!input.bad())
-            algo.update(buffer.get(), input.gcount());
+            algo.update(std::span(buffer.data(), input.gcount()));
         else
             throw FileError("Error reading input file", file_path);
     }

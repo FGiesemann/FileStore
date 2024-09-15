@@ -8,11 +8,12 @@
 #include "FileStore/hash.h"
 #include "FileStore/sha256.h"
 #include <filesystem>
+#include <span>
 #include <string>
 
 std::string hash_str(const std::string &str) {
     filestore::SHA256 sha;
-    sha.update(str.data(), str.length());
+    sha.update(std::span(str.data(), str.length()));
     return to_hex_string(sha.hash());
 }
 

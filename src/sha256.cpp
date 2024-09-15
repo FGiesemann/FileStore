@@ -21,13 +21,14 @@ SHA256::SHA256() {
     bytes_processed = 0;
 }
 
-void SHA256::update(const char *data, size_t size) {
-    char *buffer = reinterpret_cast<char *>(W);
+void SHA256::update(std::span<const char> data) {
+    auto size = data.size();
+    char *buffer = std::bit_cast<char *>(W.data());
     size_t data_offset = 0;
 
     while (size > 0) {
         const auto bytes_to_copy = std::min(size, free_buffer_bytes());
-        std::memcpy(buffer + bytes_stored, data + data_offset, bytes_to_copy);
+        std::memcpy(buffer + bytes_stored, data.data() + data_offset, bytes_to_copy);
         bytes_stored += bytes_to_copy;
         size -= bytes_to_copy;
         data_offset += bytes_to_copy;
@@ -64,7 +65,7 @@ SHA256::hash_type SHA256::hash() {
     hash_type hash_value;
     for (int i = 0; i < 8; ++i) {
         word w = byte_swap(h[i]);
-        std::memcpy(hash_value.data + sizeof(w) * i, &w, sizeof(w));
+        std::memcpy(hash_value.data.data() + sizeof(w) * i, &w, sizeof(w));
     }
     return hash_value;
 }
@@ -102,7 +103,7 @@ void SHA256::process_block() {
 void SHA256::finalize() {
     uint64_t message_bit_length = (bytes_processed + bytes_stored) * 8;
 
-    char *buffer = reinterpret_cast<char *>(W);
+    char *buffer = std::bit_cast<char *>(W.data());
 
     // append single 1-bit to the data
     // cannot be full, because then it would have already been processed and emptied again
