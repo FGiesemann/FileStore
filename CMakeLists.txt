@@ -7,6 +7,8 @@ project(FileStore
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
+find_package(Catch2 REQUIRED)
+
 add_library(FileStore
     src/file.cpp
     src/filestore.cpp
@@ -18,15 +20,6 @@ target_include_directories(FileStore
     include
 )
 
-Include(FetchContent)
-FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v3.4.0
-)
-
-FetchContent_MakeAvailable(Catch2)
-
 add_executable(tests
     test/file.cpp
     test/hash.cpp
@@ -34,4 +27,6 @@ add_executable(tests
     test/filestore.cpp
 )
 
-target_link_libraries(tests Catch2::Catch2WithMain FileStore)
+target_link_libraries(tests 
+    PRIVATE Catch2::Catch2WithMain FileStore
+)
